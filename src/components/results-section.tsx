@@ -12,7 +12,7 @@ type ResultsSectionProps = {
 export default function ResultsSection({ tours, isLoading, showByCollection }: ResultsSectionProps) {
   const groupedTours = showByCollection
   ? tours.reduce((acc, tour) => {
-      if (tour.collection) { // Only include tours with a collection
+      if (tour.collection) { 
         if (!acc[tour.collection]) {
           acc[tour.collection] = []
         }
@@ -23,7 +23,10 @@ export default function ResultsSection({ tours, isLoading, showByCollection }: R
   : { 'All Tours': tours }
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section
+      id="tours-section" // Add the id here
+      className="py-12 bg-gray-50"
+    >
       <div className="container mx-auto px-4">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
@@ -65,14 +68,12 @@ export default function ResultsSection({ tours, isLoading, showByCollection }: R
                         {tour.duration} - Starting at ${tour.price}
                       </p>
                       <p className="text-sm text-gray-600">
-  {tour.destination} {tour.collection ? `| ${tour.collection}` : ''}
-</p>
+                        {tour.destination} | {tour.collection}
+                      </p>
                     </CardContent>
                     <CardFooter>
-  <a href={tour.link} target="_blank" rel="noopener noreferrer" className="w-full">
-    <Button className="w-full">View Details</Button>
-  </a>
-</CardFooter>
+                      <Button className="w-full">View Details</Button>
+                    </CardFooter>
                   </Card>
                 ))}
               </div>
@@ -81,5 +82,5 @@ export default function ResultsSection({ tours, isLoading, showByCollection }: R
         )}
       </div>
     </section>
-  )
+  );
 }
