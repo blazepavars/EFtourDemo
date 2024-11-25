@@ -58,6 +58,7 @@ export default function UniversalTourFinder() {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API delay
 
+    // Format the tours data
     const formattedTours: Tour[] = toursData.map((tour, index) => ({
       id: index + 1, // Assign a unique ID
       name: tour.Title,
@@ -65,28 +66,32 @@ export default function UniversalTourFinder() {
       description: tour.Description,
       duration: tour.Duration,
       destination: tour.Destination || 'Unknown Destination',
-      collection: tour.Collection || null, // Set to null if empty
+      collection: tour.Collection || null,
       price: tour.price,
       link: tour.Link,
       travelForCredit: tour['Travel for Credit'] === 'Yes',
       aPlusCollection: tour['A+ Collection'] === 'Yes',
+      popularity: tour.popularity || 0, // Ensure a default popularity value
     }));
 
+    // Filter tours
     const filteredTours = formattedTours.filter((tour) =>
       (filter.destination === '' || tour.destination === filter.destination) &&
       (filter.collection === '' || tour.collection === filter.collection) &&
       (filter.duration === '' || tour.duration.includes(filter.duration)) &&
       (!filter.travelForCredit || tour.travelForCredit) &&
       (!filter.aPlusCollection || tour.aPlusCollection) &&
-      (tour.price >= filter.priceRange[0] && tour.price <= filter.priceRange[1]) && // Add price range filter
+      (tour.price >= filter.priceRange[0] && tour.price <= filter.priceRange[1]) &&
       (filter.searchKeyword === '' ||
         tour.name.toLowerCase().includes(filter.searchKeyword.toLowerCase()) ||
         tour.destination.toLowerCase().includes(filter.searchKeyword.toLowerCase()) ||
         (tour.collection && tour.collection.toLowerCase().includes(filter.searchKeyword.toLowerCase())))
     );
-    
 
-    setTours(filteredTours);
+    // Sort filtered tours by popularity
+    const sortedTours = filteredTours.sort((a, b) => b.popularity - a.popularity);
+
+    setTours(sortedTours);
     setIsLoading(false);
   };
 
@@ -96,6 +101,23 @@ export default function UniversalTourFinder() {
 
   const handleResetFilters = () => {
     setFilter(initialFilter);
+  };
+
+  const handleTourClick = (tourId: number) => {
+    // Increment popularity for the clicked tour
+    const updatedTours = tours.map((tour) =>
+      tour.id === tourId ? { ...tour, popularity: tour.popularity + 1 } : tour
+    );
+
+    // Sort tours by popularity after the click
+    const sortedTours = updatedTours.sort((a, b) => b.popularity - a.popularity);
+    setTours(sortedTours);
+
+    // Redirect to the tour's link
+    const clickedTour = tours.find((tour) => tour.id === tourId);
+    if (clickedTour) {
+      window.location.href = clickedTour.link;
+    }
   };
 
   return (
@@ -117,6 +139,7 @@ export default function UniversalTourFinder() {
         tours={tours}
         isLoading={isLoading}
         showByCollection={filter.showByCollection}
+        onTourClick={handleTourClick}
       />
     </div>
   );

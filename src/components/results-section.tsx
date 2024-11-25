@@ -1,32 +1,35 @@
-import { Tour } from '../app/types/tour'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, GraduationCap, Star } from 'lucide-react'
+import { Tour } from '../app/types/tour';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, GraduationCap, Star } from 'lucide-react';
 
 type ResultsSectionProps = {
-  tours: Tour[]
-  isLoading: boolean
-  showByCollection: boolean
-}
+  tours: Tour[];
+  isLoading: boolean;
+  showByCollection: boolean;
+  onCardClick?: (id: number) => void; // Make onCardClick optional
+};
 
-export default function ResultsSection({ tours, isLoading, showByCollection }: ResultsSectionProps) {
+export default function ResultsSection({
+  tours,
+  isLoading,
+  showByCollection,
+  onCardClick,
+}: ResultsSectionProps) {
   const groupedTours = showByCollection
-  ? tours.reduce((acc, tour) => {
-      if (tour.collection) { 
-        if (!acc[tour.collection]) {
-          acc[tour.collection] = []
+    ? tours.reduce((acc, tour) => {
+        if (tour.collection) {
+          if (!acc[tour.collection]) {
+            acc[tour.collection] = [];
+          }
+          acc[tour.collection].push(tour);
         }
-        acc[tour.collection].push(tour)
-      }
-      return acc
-    }, {} as Record<string, Tour[]>)
-  : { 'All Tours': tours }
+        return acc;
+      }, {} as Record<string, Tour[]>)
+    : { 'All Tours': tours };
 
   return (
-    <section
-      id="tours-section" // Add the id here
-      className="py-12 bg-gray-50"
-    >
+    <section id="tours-section" className="py-12 bg-gray-50">
       <div className="container mx-auto px-4">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
@@ -45,7 +48,10 @@ export default function ResultsSection({ tours, isLoading, showByCollection }: R
               <h2 className="text-2xl font-bold mb-4">{collection}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {collectionTours.map((tour) => (
-                  <Card key={tour.id} className="overflow-hidden transition-transform hover:scale-105 relative">
+                  <Card
+                    key={tour.id}
+                    className="overflow-hidden transition-transform hover:scale-105 relative"
+                  >
                     {tour.travelForCredit && (
                       <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
                         <GraduationCap className="w-4 h-4 mr-1" />
@@ -72,7 +78,14 @@ export default function ResultsSection({ tours, isLoading, showByCollection }: R
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button className="w-full">View Details</Button>
+                      <a
+                        href={tour.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => onCardClick?.(tour.id)} // Safely call onCardClick if it exists
+                      >
+                        <Button className="w-full">View Details</Button>
+                      </a>
                     </CardFooter>
                   </Card>
                 ))}
